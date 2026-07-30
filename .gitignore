@@ -1,0 +1,26 @@
+﻿# Keil MDK build artifacts
+project/MDK(V5)/Objects/
+project/MDK(V5)/Listings/
+project/MDK(V5)/DebugConfig/
+project/MDK(V5)/Project.uvguix.*
+project/MDK(V5)/Project.uvoptx
+*.o
+*.d
+*.crf
+*.axf
+*.hex
+*.htm
+*.lnp
+*.sct
+*.dep
+*.iex
+*.scvd
+*.map
+*.lst
+
+# Temp files
+module/stm32f10x_it2.c
+
+# IDE
+.uvguix.*
+.uvoptx
