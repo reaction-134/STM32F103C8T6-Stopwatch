@@ -1,4 +1,4 @@
-/**
+﻿/**
   ******************************************************************************
   * @file    system_stm32f10x.c
   * @author  MCD Application Team
@@ -104,7 +104,7 @@
     
 #if defined (STM32F10X_LD_VL) || (defined STM32F10X_MD_VL) || (defined STM32F10X_HD_VL)
 /* #define SYSCLK_FREQ_HSE    HSE_VALUE */
- #define SYSCLK_FREQ_24MHz  24000000
+/* #define SYSCLK_FREQ_24MHz  24000000 */
 #else
 /* #define SYSCLK_FREQ_HSE    HSE_VALUE */
 /* #define SYSCLK_FREQ_24MHz  24000000 */ 

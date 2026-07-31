@@ -1,159 +1,50 @@
-﻿/**
-  ******************************************************************************
-  * @file    Project/STM32F10x_StdPeriph_Template/stm32f10x_it.c 
-  * @author  MCD Application Team
-  * @version V3.6.0
-  * @date    20-September-2021
-  * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and 
-  *          peripherals interrupt service routine.
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2011 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-
-/* Includes ------------------------------------------------------------------*/
+﻿/* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 
-/** @addtogroup STM32F10x_StdPeriph_Template
-  * @{
-  */
-
-/* Private typedef -----------------------------------------------------------*/
-/* Private define ------------------------------------------------------------*/
-/* Private macro -------------------------------------------------------------*/
-/* Private variables ---------------------------------------------------------*/
-/* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* ========== 秒表计时变量（volatile，中断与主循环共享）========== */
+volatile uint32_t tick_100us = 0;   /* 100us 累计，到 10 表示 1ms */
+volatile uint32_t total_ms   = 0;   /* 毫秒累计，主循环据此计算显示 */
 
 /******************************************************************************/
 /*            Cortex-M3 Processor Exceptions Handlers                         */
 /******************************************************************************/
 
-/**
-  * @brief  This function handles NMI exception.
-  * @param  None
-  * @retval None
-  */
-void NMI_Handler(void)
-{
-}
+void NMI_Handler(void) {}
+void HardFault_Handler(void) { while (1); }
+void MemManage_Handler(void) { while (1); }
+void BusFault_Handler(void)  { while (1); }
+void UsageFault_Handler(void){ while (1); }
+void SVC_Handler(void)       {}
+void DebugMon_Handler(void)  {}
+void PendSV_Handler(void)    {}
 
-/**
-  * @brief  This function handles Hard Fault exception.
-  * @param  None
-  * @retval None
-  */
-void HardFault_Handler(void)
-{
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Memory Manage exception.
-  * @param  None
-  * @retval None
-  */
-void MemManage_Handler(void)
-{
-  /* Go to infinite loop when Memory Manage exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Bus Fault exception.
-  * @param  None
-  * @retval None
-  */
-void BusFault_Handler(void)
-{
-  /* Go to infinite loop when Bus Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles Usage Fault exception.
-  * @param  None
-  * @retval None
-  */
-void UsageFault_Handler(void)
-{
-  /* Go to infinite loop when Usage Fault exception occurs */
-  while (1)
-  {
-  }
-}
-
-/**
-  * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
-  */
-void SVC_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles Debug Monitor exception.
-  * @param  None
-  * @retval None
-  */
-void DebugMon_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles PendSVC exception.
-  * @param  None
-  * @retval None
-  */
-void PendSV_Handler(void)
-{
-}
-
-/**
-  * @brief  SysTick_Handler is defined in delay.c (SysTick-based delay implementation).
-  *         Do NOT define it here to avoid linker conflict.
-  * @param  None
-  * @retval None
-  */
-/* void SysTick_Handler(void) */
-/* { */
-/* } */
+/* SysTick_Handler 定义在 delay.c */
 
 /******************************************************************************/
 /*                 STM32F10x Peripherals Interrupt Handlers                   */
-/*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */
-/*  available peripheral interrupt handler's name please refer to the startup */
-/*  file (startup_stm32f10x_xx.s).                                            */
 /******************************************************************************/
 
 /**
-  * @brief  This function handles PPP interrupt request.
-  * @param  None
-  * @retval None
-  */
-/*void PPP_IRQHandler(void)
+ * @brief  TIM2 中断服务函数 - 每 100us 触发一次
+ *
+ *         1. 清除更新中断标志
+ *         2. tick_100us++（100us 计数）
+ *         3. 满 10 次（1ms）：tick_100us=0, total_ms++
+ *
+ *         中断中不做 GPIO 操作，仅更新计时变量。
+ */
+void TIM2_IRQHandler(void)
 {
-}*/
+    if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET)
+    {
+        TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 
-/**
-  * @}
-  */ 
+        tick_100us++;
 
-
+        if (tick_100us >= 10)
+        {
+            tick_100us = 0;
+            total_ms++;
+        }
+    }
+}
